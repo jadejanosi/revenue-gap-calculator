@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revenue Gap Calculator — Digital Ease Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-dark: #085041;
+    --teal-mid: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-border: #9FE1CB;
+    --teal-bg: #f4fbf8;
+    --white: #ffffff;
+    --grey: #444444;
+    --grey-light: #888888;
+    --coral: #D85A30;
+    --coral-light: #FAECE7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--teal-bg);
+    color: var(--grey);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── DECORATIVE BG ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(29,158,117,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(8,80,65,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 600;
+    color: var(--teal-dark);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .header h1 em {
+    font-style: italic;
+    color: var(--teal-mid);
+  }
+  .header p {
+    font-size: 15px;
+    color: var(--grey-light);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-bottom: 32px;
+  }
+  .progress-bar {
+    height: 3px;
+    background: var(--teal-light);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal-mid), var(--teal-dark));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--grey-light);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid rgba(29,158,117,0.12);
+    box-shadow: 0 4px 24px rgba(8,80,65,0.06);
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    background: var(--teal-dark);
+    color: var(--white);
+    padding: 12px 24px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-num {
+    width: 20px; height: 20px;
+    background: var(--teal-mid);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── QUESTION ── */
+  .question-body {
+    padding: 28px 24px 24px;
+  }
+  .question-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .question-sub {
+    font-size: 13px;
+    color: var(--grey-light);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── OPTIONS ── */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--teal-light);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--teal-bg);
+  }
+  .option:hover {
+    border-color: var(--teal-mid);
+    background: var(--teal-light);
+    transform: translateX(3px);
+  }
+  .option.selected {
+    border-color: var(--teal-mid);
+    background: var(--teal-light);
+  }
+  .option-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--teal-border);
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option.selected .option-dot {
+    background: var(--teal-mid);
+    border-color: var(--teal-mid);
+  }
+  .option.selected .option-dot::after {
+    content: '';
+    width: 6px; height: 6px;
+    background: white;
+    border-radius: 50%;
+  }
+  .option-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--teal-dark);
+    flex: 1;
+  }
+  .option-sub {
+    font-size: 11px;
+    color: var(--grey-light);
+    margin-top: 2px;
+  }
+  .option-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--teal-mid);
+    background: var(--white);
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--teal-border);
+    flex-shrink: 0;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    padding: 16px 24px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--teal-light);
+  }
+  .btn-back {
+    font-size: 13px;
+    color: var(--grey-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    padding: 8px 0;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--teal-dark); }
+  .btn-next {
+    background: var(--teal-dark);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .btn-next.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .btn-next.active:hover {
+    background: var(--teal-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(29,158,117,0.3);
+  }
+
+  /* ── EMAIL GATE ── */
+  .email-gate {
+    padding: 32px 24px;
+  }
+  .email-gate h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .email-gate p {
+    font-size: 14px;
+    color: var(--grey-light);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .preview-gaps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .preview-gap {
+    background: var(--teal-light);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .preview-gap-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 6px;
+  }
+  .preview-gap-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    filter: blur(6px);
+    user-select: none;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--teal-light);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--teal-dark);
+    background: var(--teal-bg);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus {
+    border-color: var(--teal-mid);
+    background: var(--white);
+  }
+  .btn-reveal {
+    width: 100%;
+    background: var(--teal-dark);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-reveal:hover {
+    background: var(--teal-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(29,158,117,0.3);
+  }
+  .privacy-note {
+    font-size: 11px;
+    color: var(--grey-light);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ── RESULTS ── */
+  .results {
+    padding: 32px 24px;
+    animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .results-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .results-header .total-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 8px;
+  }
+  .results-header .total-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(44px, 10vw, 72px);
+    font-weight: 700;
+    color: var(--teal-dark);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .results-header .total-sub {
+    font-size: 14px;
+    color: var(--grey-light);
+    line-height: 1.6;
+  }
+
+  .gap-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .gap-card {
+    border: 1px solid var(--teal-light);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .gap-card:hover { transform: translateY(-2px); }
+  .gap-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--teal-light);
+    cursor: pointer;
+  }
+  .gap-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .gap-icon {
+    width: 32px; height: 32px;
+    background: var(--teal-dark);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .gap-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal-dark);
+  }
+  .gap-severity {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .severity-critical { background: #FEE2E2; color: #DC2626; }
+  .severity-high { background: var(--coral-light); color: var(--coral); }
+  .severity-medium { background: #FEF9C3; color: #A16207; }
+  .severity-low { background: var(--teal-light); color: var(--teal-mid); }
+
+  .gap-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--teal-dark);
+  }
+  .gap-card-body {
+    padding: 16px 18px;
+    background: var(--white);
+    display: none;
+  }
+  .gap-card-body.open { display: block; }
+  .gap-diagnosis {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .gap-fix {
+    background: var(--teal-light);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--teal-dark);
+    line-height: 1.6;
+  }
+  .gap-fix strong {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 4px;
+  }
+  .gap-fix a {
+    color: var(--teal-mid);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .gap-fix a:hover { text-decoration: underline; }
+
+  /* ── BIGGEST GAP CALLOUT ── */
+  .biggest-gap {
+    background: var(--teal-dark);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    color: var(--white);
+  }
+  .biggest-gap-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal-border);
+    margin-bottom: 8px;
+  }
+  .biggest-gap-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .biggest-gap-text {
+    font-size: 13px;
+    color: var(--teal-border);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .btn-fix {
+    display: inline-block;
+    background: var(--teal-mid);
+    color: var(--white);
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-fix:hover {
+    background: var(--white);
+    color: var(--teal-dark);
+  }
+
+  /* ── SHARE ── */
+  .share-section {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--teal-light);
+  }
+  .share-section p {
+    font-size: 13px;
+    color: var(--grey-light);
+    margin-bottom: 12px;
+  }
+  .share-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .btn-share {
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 11px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 4px;
+  }
+  .btn-share:hover {
+    background: var(--teal-mid);
+    color: var(--white);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--grey-light);
+  }
+  .footer a {
+    color: var(--teal-mid);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  /* ── LOADING ── */
+  .loading {
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .loading-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--teal-light);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal-mid), var(--teal-dark));
+    border-radius: 2px;
+    animation: loadingAnim 1.8s ease-in-out forwards;
+  }
+  @keyframes loadingAnim {
+    0% { width: 0%; }
+    60% { width: 75%; }
+    100% { width: 100%; }
+  }
+  .loading p {
+    font-size: 14px;
+    color: var(--grey-light);
+    font-style: italic;
+  }
+
+  /* ── ERROR ── */
+  .error-msg {
+    color: var(--coral);
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+  }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">Digital Ease Studio</div>
+    <h1>Your Digital Product<br><em>Revenue Gap</em> Calculator</h1>
+    <p>Answer 9 questions. Find out exactly how much money is sitting in your business right now — uncaptured.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">Question 1 of 9</div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card" id="mainCard">
+
+    <!-- QUESTIONS will be injected here -->
+    <div id="questionContainer"></div>
+
+    <!-- EMAIL GATE -->
+    <div id="emailGate" class="email-gate hidden">
+      <h2>Your results are ready.<br>Where should we send them?</h2>
+      <p>You're about to see exactly where your biggest revenue gap is and what it's costing you every month.</p>
+      <div class="preview-gaps" id="previewGaps"></div>
+      <div class="form-group">
+        <label>First name</label>
+        <input type="text" id="firstName" placeholder="Your first name" autocomplete="given-name">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email">
+        <div class="error-msg" id="emailError">Please enter a valid email address.</div>
+      </div>
+      <button class="btn-reveal" onclick="submitEmail()">Show me my revenue gaps →</button>
+      <p class="privacy-note">No spam. Just your results and the occasional email worth opening. — Jade</p>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loadingScreen" class="loading hidden">
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+      <p>Calculating your revenue gaps...</p>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultsContainer" class="results hidden"></div>
+
+  </div>
+
+  <div class="footer">
+    A free tool from <a href="https://jadejanosi.com">jadejanosi.com</a> &nbsp;·&nbsp; <a href="https://jadejanosi.com/product/moms-ai-revenue-system/">Mom's AI Revenue System</a>
+  </div>
+
+</div>
+
+<script>
+// ── QUESTIONS ────────────────────────────────────────────────────────
+const questions = [
+  {
+    id: 'products',
+    section: 'Your Product Suite',
+    sectionNum: 1,
+    text: 'How many digital products do you currently have for sale?',
+    sub: 'Include anything with a buy button — PDFs, courses, templates, memberships.',
+    options: [
+      { label: 'None yet', sub: "I'm still building", value: 0 },
+      { label: '1 product', sub: 'Just getting started', value: 1 },
+      { label: '2–4 products', sub: 'Small but growing suite', value: 3 },
+      { label: '5+ products', sub: 'Full suite live', value: 5 },
+    ]
+  },
+  {
+    id: 'checkout',
+    section: 'Your Checkout',
+    sectionNum: 2,
+    text: 'Do you have an order bump at checkout?',
+    sub: 'A one-click add-on offer that appears before payment — like "Add The Human Layer for $24."',
+    options: [
+      { label: 'No order bump', sub: 'Straight to payment', value: 0 },
+      { label: 'Yes, it\'s live', sub: 'Checkout bump active', value: 1 },
+      { label: 'Not sure what this is', sub: 'New to me', value: 0 },
+    ]
+  },
+  {
+    id: 'upsell',
+    section: 'Your Post-Purchase Flow',
+    sectionNum: 2,
+    text: 'What happens after someone buys from you?',
+    sub: 'The 24 hours after purchase is the highest-converting window in your entire business.',
+    options: [
+      { label: 'They get a thank-you page and that\'s it', value: 0 },
+      { label: 'They get an automated email sequence', value: 1 },
+      { label: 'I offer them another product within 48 hours', value: 2 },
+      { label: 'Both an email sequence and a upsell offer', value: 3 },
+    ]
+  },
+  {
+    id: 'email',
+    section: 'Your Email List',
+    sectionNum: 3,
+    text: 'How often do you email your list?',
+    sub: 'Be honest — this is for your results, not a report card.',
+    options: [
+      { label: 'I don\'t have a list yet', value: 0 },
+      { label: 'Rarely — a few times a month at most', value: 1 },
+      { label: 'Weekly', value: 2 },
+      { label: '2–3 times per week', value: 3 },
+    ]
+  },
+  {
+    id: 'nurture',
+    section: 'Your Email List',
+    sectionNum: 3,
+    text: 'Do you have an automated nurture sequence?',
+    sub: 'A series of emails that fires automatically when someone joins your list — running without you.',
+    options: [
+      { label: 'No — people just get added to my list', value: 0 },
+      { label: 'Yes — 1 to 3 emails', value: 1 },
+      { label: 'Yes — 5 or more emails with a pitch', value: 2 },
+    ]
+  },
+  {
+    id: 'content',
+    section: 'Your Content',
+    sectionNum: 4,
+    text: 'How consistently are you posting content right now?',
+    sub: 'Content is your cold traffic engine — this affects how many new people enter your world each week.',
+    options: [
+      { label: 'Barely posting', sub: 'A few times a month', value: 0 },
+      { label: '3–4 times a week', sub: 'Fairly consistent', value: 1 },
+      { label: 'Daily', sub: 'Showing up every day', value: 2 },
+    ]
+  },
+  {
+    id: 'leadmagnet',
+    section: 'Your Content',
+    sectionNum: 4,
+    text: 'Do you have a lead magnet driving people from content to your email list?',
+    sub: 'A freebie with a CTA in your bio, captions, or stories that turns followers into subscribers.',
+    options: [
+      { label: 'No lead magnet', sub: 'No opt-in in place', value: 0 },
+      { label: 'Yes but I rarely promote it', value: 1 },
+      { label: 'Yes and I push it consistently', value: 2 },
+    ]
+  },
+  {
+    id: 'manychat',
+    section: 'Your Content',
+    sectionNum: 4,
+    text: 'Are you using comment triggers (like Manychat) to convert post engagement into DMs?',
+    sub: 'Comment triggers fire a DM automatically when someone comments a keyword — the fastest path from content to conversion.',
+    options: [
+      { label: 'No — I rely on link in bio', value: 0 },
+      { label: 'Yes — I have at least one trigger active', value: 2 },
+      { label: 'What\'s Manychat?', value: 0 },
+    ]
+  },
+  {
+    id: 'ads',
+    section: 'Your Traffic',
+    sectionNum: 5,
+    text: 'Are you running paid ads to your products or opt-in?',
+    sub: 'Organic content builds slowly. Paid traffic determines how fast the machine can scale.',
+    options: [
+      { label: 'No paid ads at all', value: 0 },
+      { label: 'Boosting posts occasionally', sub: 'Not the same as real ads', value: 0 },
+      { label: 'Running Meta ads at under $20/day', value: 1 },
+      { label: 'Running Meta ads at $20/day or more', value: 2 },
+    ]
+  },
+];
+
+// ── STATE ────────────────────────────────────────────────────────────
+let currentQ = 0;
+let answers = {};
+
+// ── RENDER QUESTION ──────────────────────────────────────────────────
+function renderQuestion() {
+  const q = questions[currentQ];
+  const container = document.getElementById('questionContainer');
+  const total = questions.length;
+
+  // Progress
+  const pct = ((currentQ) / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Question ${currentQ + 1} of ${total}`;
+
+  container.innerHTML = `
+    <div class="section-label">
+      <div class="section-num">${q.sectionNum}</div>
+      ${q.section}
+    </div>
+    <div class="question-body">
+      <div class="question-text">${q.text}</div>
+      ${q.sub ? `<div class="question-sub">${q.sub}</div>` : ''}
+      <div class="options" id="optionsList">
+        ${q.options.map((opt, i) => `
+          <div class="option ${answers[q.id] === i ? 'selected' : ''}" onclick="selectOption(${i})" data-index="${i}">
+            <div class="option-dot"></div>
+            <div>
+              <div class="option-text">${opt.label}</div>
+              ${opt.sub ? `<div class="option-sub">${opt.sub}</div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="goBack()" ${currentQ === 0 ? 'style="opacity:0;pointer-events:none"' : ''}>← Back</button>
+      <button class="btn-next ${answers[q.id] !== undefined ? 'active' : ''}" id="nextBtn" onclick="goNext()">
+        ${currentQ === total - 1 ? 'Calculate my gaps →' : 'Next →'}
+      </button>
+    </div>
+  `;
+}
+
+function selectOption(index) {
+  const q = questions[currentQ];
+  answers[q.id] = index;
+  document.querySelectorAll('.option').forEach((el, i) => {
+    el.classList.toggle('selected', i === index);
+  });
+  document.getElementById('nextBtn').classList.add('active');
+}
+
+function goNext() {
+  if (answers[questions[currentQ].id] === undefined) return;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showEmailGate();
+  }
+}
+
+function goBack() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+// ── CALCULATE GAPS ───────────────────────────────────────────────────
+function calculateGaps() {
+  const get = (id) => {
+    const q = questions.find(q => q.id === id);
+    const idx = answers[id];
+    return idx !== undefined ? q.options[idx].value : 0;
+  };
+
+  const productScore = get('products');
+  const checkoutScore = get('checkout');
+  const upsellScore = get('upsell');
+  const emailScore = get('email');
+  const nurtureScore = get('nurture');
+  const contentScore = get('content');
+  const leadMagnetScore = get('leadmagnet');
+  const manychatScore = get('manychat');
+  const adsScore = get('ads');
+
+  // ── CHECKOUT GAP ──
+  // Missing bump + missing upsell relative to max
+  const checkoutMax = 1 + 3;
+  const checkoutActual = checkoutScore + upsellScore;
+  const checkoutGapPct = 1 - (checkoutActual / checkoutMax);
+  const baseOrderValue = productScore === 0 ? 47 : (productScore === 1 ? 47 : productScore === 3 ? 55 : 65);
+  const checkoutGap = Math.round(checkoutGapPct * baseOrderValue * 45);
+
+  // ── EMAIL GAP ──
+  const emailMax = 3 + 2;
+  const emailActual = emailScore + nurtureScore;
+  const emailGapPct = 1 - (emailActual / emailMax);
+  const listEstimate = emailScore === 0 ? 100 : emailScore === 1 ? 250 : emailScore === 2 ? 500 : 1000;
+  const emailGap = Math.round(emailGapPct * listEstimate * 0.02 * 47 * 2);
+
+  // ── CONTENT GAP ──
+  const contentMax = 2 + 2 + 2;
+  const contentActual = contentScore + leadMagnetScore + manychatScore;
+  const contentGapPct = 1 - (contentActual / contentMax);
+  const contentGap = Math.round(contentGapPct * 380);
+
+  // ── TRAFFIC GAP ──
+  const trafficMax = 2;
+  const trafficGapPct = 1 - (adsScore / trafficMax);
+  const trafficGap = Math.round(trafficGapPct * 520);
+
+  // ── FUNNEL GAP ──
+  // Overall system gap — how disconnected the pieces are
+  const systemScore = (emailActual + checkoutActual + contentActual + adsScore);
+  const systemMax = emailMax + checkoutMax + contentMax + trafficMax;
+  const funnelGapPct = 1 - (systemScore / systemMax);
+  const funnelGap = Math.round(funnelGapPct * 290);
+
+  const total = checkoutGap + emailGap + contentGap + trafficGap + funnelGap;
+
+  // Severity
+  const sev = (pct) => {
+    if (pct > 0.75) return 'critical';
+    if (pct > 0.5) return 'high';
+    if (pct > 0.25) return 'medium';
+    return 'low';
+  };
+
+  const gaps = [
+    {
+      name: 'The Checkout Gap',
+      icon: '🛒',
+      amount: checkoutGap,
+      severity: sev(checkoutGapPct),
+      diagnosis: checkoutGapPct > 0.5
+        ? "You're leaving money at the exact moment someone is already buying. An order bump at checkout and a post-purchase upsell are the two highest-converting moments in your entire funnel — and right now, you're not using them. Every sale you make is worth less than it should be."
+        : "Your checkout is working reasonably well. The remaining gap is tightening the post-purchase sequence to capture the second sale while the buyer is still warm.",
+      fix: checkoutGapPct > 0.5
+        ? { text: "The Mom's AI Revenue System includes the full offer stack framework — bump, upsell, and post-purchase sequence — built in.", link: 'https://jadejanosi.com/product/moms-ai-revenue-system/', linkText: "Get the Revenue System →" }
+        : { text: "Add The Human Layer as a checkout bump. One checkbox. Zero extra traffic needed.", link: 'https://jadejanosi.com/product/the-human-layer/', linkText: "See The Human Layer →" }
+    },
+    {
+      name: 'The Email Gap',
+      icon: '📧',
+      amount: emailGap,
+      severity: sev(emailGapPct),
+      diagnosis: emailGapPct > 0.5
+        ? "Your email list — whatever size it is — isn't working for you right now. Without a nurture sequence, subscribers sit cold and forget who you are. Without consistent sending, the trust you built with your content evaporates. Email is your highest-ROI channel and it's currently your biggest leak."
+        : "You're emailing consistently. The gap is in the sequence — more touchpoints before the pitch and a tighter post-purchase flow will close the remaining revenue.",
+      fix: { text: "The Revenue System's email monetization module shows you exactly how to run a list of any size — 50 subscribers or 5,000 — into consistent sales.", link: 'https://jadejanosi.com/product/moms-ai-revenue-system/', linkText: "Get the Revenue System →" }
+    },
+    {
+      name: 'The Content Gap',
+      icon: '📱',
+      amount: contentGap,
+      severity: sev(contentGapPct),
+      diagnosis: contentGapPct > 0.5
+        ? "Your content isn't converting followers into subscribers or buyers — and right now it doesn't have the infrastructure to do either. Without a lead magnet being pushed consistently and a comment trigger turning engagement into DMs, your content is building awareness but not revenue."
+        : "Your content infrastructure is mostly in place. The gap is in the content-to-list conversion path — making sure every post has one job and drives toward your opt-in.",
+      fix: { text: "This is exactly the Content Engine module inside the Revenue System — including the 1→20 repurposing method, hook formula library, and Manychat integration.", link: 'https://jadejanosi.com/product/moms-ai-revenue-system/', linkText: "Get the Revenue System →" }
+    },
+    {
+      name: 'The Traffic Gap',
+      icon: '🚦',
+      amount: trafficGap,
+      severity: sev(trafficGapPct),
+      diagnosis: trafficGapPct > 0.5
+        ? "Organic content builds slowly. Pinterest compounds over months. Without paid traffic running in parallel, you're entirely at the mercy of the algorithm for every new person who discovers you. This isn't a problem with your content — it's a volume problem. You can't convert traffic you're not getting."
+        : "You have paid traffic running which means you have a scalable acquisition channel. The gap now is in your cost per acquisition and whether your funnel converts cold traffic efficiently.",
+      fix: { text: "Run the Ad: Meta Ads Masterclass walks you through exactly how to run ads that drive digital product sales — from creative to targeting to scaling.", link: 'https://jadejanosi.com/product/run-the-ad-meta-ads-masterclass/', linkText: "See Run the Ad →" }
+    },
+    {
+      name: 'The Funnel Gap',
+      icon: '🔗',
+      amount: funnelGap,
+      severity: sev(funnelGapPct),
+      diagnosis: funnelGapPct > 0.5
+        ? "The individual pieces of your business — content, email, products, checkout — aren't connected into a system that runs on repeat. You might be doing some things right but they're not talking to each other. A sale happens, nothing follows. A follower finds you, nothing captures them. The system isn't running."
+        : "Your funnel pieces are mostly connected. The remaining gap is in the automation — making sure the system runs without you having to manually intervene at each stage.",
+      fix: { text: "The Mom's AI Revenue System is the operating layer that connects all of it — content to email to checkout to upsell — running in 47 minutes a week.", link: 'https://jadejanosi.com/product/moms-ai-revenue-system/', linkText: "Get the Revenue System →" }
+    }
+  ];
+
+  // Sort by amount descending
+  gaps.sort((a, b) => b.amount - a.amount);
+
+  return { gaps, total };
+}
+
+// ── EMAIL GATE ───────────────────────────────────────────────────────
+function showEmailGate() {
+  document.getElementById('questionContainer').classList.add('hidden');
+  document.getElementById('progressWrap').classList.add('hidden');
+
+  const { gaps, total } = calculateGaps();
+
+  // Preview (blurred)
+  const previewHtml = gaps.map(g => `
+    <div class="preview-gap">
+      <div class="preview-gap-label">${g.name.replace('The ','').replace(' Gap','')}</div>
+      <div class="preview-gap-amount">$${g.amount.toLocaleString()}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('previewGaps').innerHTML = previewHtml;
+  document.getElementById('emailGate').classList.remove('hidden');
+}
+
+async function submitEmail() {
+  const email = document.getElementById('emailInput').value.trim();
+  const name = document.getElementById('firstName').value.trim();
+  const errorEl = document.getElementById('emailError');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  // Send to serverless function — API key stays private on the server
+  try {
+    await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, firstName: name })
+    });
+  } catch(e) {
+    console.log('Subscribe error', e);
+  }
+
+  // Show loading then results
+  document.getElementById('emailGate').classList.add('hidden');
+  document.getElementById('loadingScreen').classList.remove('hidden');
+
+  setTimeout(() => {
+    document.getElementById('loadingScreen').classList.add('hidden');
+    showResults();
+  }, 2000);
+}
+
+// ── RESULTS ──────────────────────────────────────────────────────────
+function showResults() {
+  const { gaps, total } = calculateGaps();
+  const biggestGap = gaps[0];
+
+  const severityLabel = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' };
+
+  const gapCardsHtml = gaps.map((g, i) => `
+    <div class="gap-card">
+      <div class="gap-card-header" onclick="toggleGap(${i})">
+        <div class="gap-card-title">
+          <div class="gap-icon">${g.icon}</div>
+          <div>
+            <div class="gap-name">${g.name}</div>
+            <span class="gap-severity severity-${g.severity}">${severityLabel[g.severity]} priority</span>
+          </div>
+        </div>
+        <div class="gap-amount">$${g.amount.toLocaleString()}/mo</div>
+      </div>
+      <div class="gap-card-body ${i === 0 ? 'open' : ''}" id="gapBody${i}">
+        <div class="gap-diagnosis">${g.diagnosis}</div>
+        <div class="gap-fix">
+          <strong>The fix</strong>
+          ${g.fix.text} <a href="${g.fix.link}" target="_blank">${g.fix.linkText}</a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('resultsContainer').innerHTML = `
+    <div class="results-header">
+      <div class="total-label">Your estimated uncaptured revenue</div>
+      <div class="total-amount">$${total.toLocaleString()}</div>
+      <div class="total-sub">per month — sitting in your business right now, not being captured.</div>
+    </div>
+
+    <div class="biggest-gap">
+      <div class="biggest-gap-label">Your biggest gap right now</div>
+      <div class="biggest-gap-title">${biggestGap.name} — $${biggestGap.amount.toLocaleString()}/mo</div>
+      <div class="biggest-gap-text">This is where to focus first. Fix this one gap before anything else.</div>
+      <a href="${biggestGap.fix.link}" target="_blank" class="btn-fix">${biggestGap.fix.linkText}</a>
+    </div>
+
+    <div class="gap-cards">
+      ${gapCardsHtml}
+    </div>
+
+    <div class="share-section">
+      <p>Found this useful? Share your number.</p>
+      <span class="share-amount">"I just found $${total.toLocaleString()}/mo in uncaptured revenue."</span>
+      <button class="btn-share" onclick="shareIG()">Share to Instagram Stories</button>
+      <button class="btn-share" onclick="copyResult()">Copy my result</button>
+    </div>
+  `;
+
+  document.getElementById('resultsContainer').classList.remove('hidden');
+}
+
+function toggleGap(i) {
+  const body = document.getElementById('gapBody' + i);
+  body.classList.toggle('open');
+}
+
+function shareIG() {
+  const { total } = calculateGaps();
+  const text = `I just discovered I have $${total.toLocaleString()}/month in uncaptured revenue in my digital product business. Take the free Revenue Gap Calculator at jadejanosi.com/tools`;
+  if (navigator.share) {
+    navigator.share({ text });
+  } else {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard — paste into your Instagram story!');
+  }
+}
+
+function copyResult() {
+  const { total } = calculateGaps();
+  const text = `I just found $${total.toLocaleString()}/month sitting uncaptured in my digital product business. Free calculator: jadejanosi.com/tools`;
+  navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+renderQuestion();
+</script>
+
+</body>
+</html>
